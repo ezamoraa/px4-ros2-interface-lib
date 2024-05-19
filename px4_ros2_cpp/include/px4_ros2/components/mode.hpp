@@ -157,12 +157,13 @@ public:
    */
   RequirementFlags & modeRequirements() {return _health_and_arming_checks.modeRequirements();}
 
+  void addSetpointType(SetpointBase * setpoint) override;
+
 protected:
   void setSkipMessageCompatibilityCheck() {_skip_message_compatibility_check = true;}
   void overrideRegistration(const std::shared_ptr<Registration> & registration);
 
 private:
-  void addSetpointType(SetpointBase * setpoint) override;
   void setRequirement(const RequirementFlags & requirement_flags) override;
 
   friend class ModeExecutorBase;

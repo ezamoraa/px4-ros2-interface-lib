@@ -53,7 +53,7 @@ public:
    * Register the mode executor. Call this once on startup. This is a blocking method.
    * @return true on success
    */
-  bool doRegister();
+  virtual bool doRegister();
 
 
   /**

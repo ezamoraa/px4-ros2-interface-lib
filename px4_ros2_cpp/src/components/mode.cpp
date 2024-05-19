@@ -194,15 +194,17 @@ void ModeBase::onAboutToRegister()
   assert(_setpoint_types.empty());
   for (auto * setpoint : _new_setpoint_types) {
     _setpoint_types.push_back(setpoint->getSharedPtr());
-
+    setpoint->doRegister();
     setpoint->setShouldActivateCallback(
       [this, setpoint]() {
         for (auto & setpoint_type : _setpoint_types) {
           if (setpoint_type.get() == setpoint) {
-            activateSetpointType(*setpoint);
-            RCLCPP_DEBUG(
-              node().get_logger(), "Mode '%s': changing setpoint type",
-              _registration->name().c_str());
+            if (!setpoint_type->active()) {
+              activateSetpointType(*setpoint);
+              RCLCPP_DEBUG(
+                node().get_logger(), "Mode '%s': changing setpoint type",
+                _registration->name().c_str());
+            }
           } else {
             setpoint_type->setActive(false);
           }
@@ -227,7 +229,7 @@ bool ModeBase::onRegistered()
 
   // TODO: check setpoint types compatibility with current vehicle type
 
-  activateSetpointType(*_setpoint_types[0]);
+  // activateSetpointType(*_setpoint_types[0]);
   if (_setpoint_update_rate_hz < FLT_EPSILON) {
     // Do not use default setpoint rate if rate was already set by user
     setSetpointUpdateRateFromSetpointTypes();
@@ -290,6 +292,7 @@ void ModeBase::addSetpointType(SetpointBase * setpoint)
   // setpoint is currently being constructed, so we cannot get a shared pointer to it, and we cannot call virtual
   // methods. So we just store the pointer for later use
   _new_setpoint_types.push_back(setpoint);
+  setpoint->onSetpointTypeAdded(this);
 }
 
 void ModeBase::setRequirement(const RequirementFlags & requirement_flags)

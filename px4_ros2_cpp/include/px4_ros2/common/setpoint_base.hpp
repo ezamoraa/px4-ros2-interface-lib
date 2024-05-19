@@ -51,6 +51,7 @@ public:
     context.addSetpointType(this);
   }
 
+  explicit SetpointBase() = default;
   virtual ~SetpointBase() = default;
 
   std::shared_ptr<SetpointBase> getSharedPtr()
@@ -63,28 +64,35 @@ public:
     return {};
   }
 
+  virtual bool doRegister() {return true;}
+  virtual void doUnregister() {}
+
   virtual Configuration getConfiguration() = 0;
 
   virtual float desiredUpdateRateHz() {return 50.f;}
 
-
   void setShouldActivateCallback(const ShouldActivateCB & should_activate_cb)
   {
-    _should_activate_cb = should_activate_cb;
+    _should_activate_cbs.push_back(should_activate_cb);
   }
-  void setActive(bool active) {_active = active;}
+  virtual void setActive(bool active) {_active = active;}
+  bool active() const {return _active;}
+
+  virtual void onSetpointTypeAdded(Context * context) {}
 
 protected:
   void onUpdate()
   {
-    if (!_active && _should_activate_cb) {
-      _should_activate_cb();
+    if (!_active && !_should_activate_cbs.empty()) {
+      for (const auto & should_activate_cb : _should_activate_cbs) {
+        should_activate_cb();
+      }
     }
   }
+  bool _active{false};
 
 private:
-  ShouldActivateCB _should_activate_cb;
-  bool _active{false};
+  std::vector<ShouldActivateCB> _should_activate_cbs;
 };
 
 } /* namespace px4_ros2 */
