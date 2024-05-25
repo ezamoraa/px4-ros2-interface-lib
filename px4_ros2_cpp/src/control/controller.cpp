@@ -42,9 +42,11 @@ void ControllerBase::setActive(bool active)
         [this, setpoint]() {
           for (auto & setpoint_type : _setpoint_types) {
             if (setpoint_type.get() == setpoint.get()) {
-              setpoint_type->setActive(true);
-              setConfigurationFromSetpointType(*setpoint);  // use active setpoint configuration
-              RCLCPP_DEBUG(node().get_logger(), "Changing setpoint type");
+              if (!setpoint_type->active()) {
+                setpoint_type->setActive(true);
+                setConfigurationFromSetpointType(*setpoint);  // use active setpoint configuration
+                RCLCPP_DEBUG(node().get_logger(), "Changing setpoint type");
+              }
             } else {
               setpoint_type->setActive(false);
             }
