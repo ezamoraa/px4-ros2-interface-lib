@@ -33,6 +33,7 @@ set(HEADER_FILES
         include/px4_ros2/components/node_with_mode.hpp
         include/px4_ros2/components/overrides.hpp
         include/px4_ros2/components/wait_for_fmu.hpp
+        include/px4_ros2/control/controller.hpp
         include/px4_ros2/control/peripheral_actuators.hpp
         include/px4_ros2/control/setpoint_types/direct_actuators.hpp
         include/px4_ros2/control/setpoint_types/goto.hpp
@@ -60,6 +61,7 @@ add_library(px4_ros2_cpp
         src/components/overrides.cpp
         src/components/registration.cpp
         src/components/wait_for_fmu.cpp
+        src/control/controller.cpp
         src/control/peripheral_actuators.cpp
         src/control/setpoint_types/direct_actuators.cpp
         src/control/setpoint_types/goto.cpp
