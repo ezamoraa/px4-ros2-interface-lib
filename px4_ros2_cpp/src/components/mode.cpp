@@ -204,6 +204,10 @@ void ModeBase::onAboutToRegister()
               RCLCPP_DEBUG(
                 node().get_logger(), "Mode '%s': changing setpoint type",
                 _registration->name().c_str());
+            } else {
+              RCLCPP_DEBUG(
+                node().get_logger(), "Mode '%s': setpoint type already active",
+                _registration->name().c_str());
             }
           } else {
             setpoint_type->setActive(false);
@@ -283,6 +287,12 @@ void ModeBase::activateSetpointType(SetpointBase & setpoint)
   control_mode.source_id = static_cast<uint8_t>(id());
   setpoint.getConfiguration().fillControlMode(control_mode);
   control_mode.timestamp = node().get_clock()->now().nanoseconds() / 1000;
+  // Log the control mode message with the configuration
+  RCLCPP_DEBUG(
+    node().get_logger(), "Mode '%s': publishing config control mode with control alloc: %d, rates: %d",
+    _registration->name().c_str(),
+    (int)control_mode.flag_control_allocation_enabled,
+    (int)control_mode.flag_control_rates_enabled);
   _config_control_setpoints_pub->publish(control_mode);
 }
 

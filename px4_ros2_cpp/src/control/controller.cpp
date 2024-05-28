@@ -36,6 +36,7 @@ void ControllerBase::setActive(bool active)
 {
   if (active) {
     _last_controller_update = node().get_clock()->now();
+    setConfigurationFromSetpointType(*_setpoint_types.front());  // use first setpoint configuration
     onActivate();
     for (auto & setpoint : _setpoint_types) {
       setpoint->setShouldActivateCallback(
