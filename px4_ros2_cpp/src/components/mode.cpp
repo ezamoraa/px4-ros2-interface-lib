@@ -99,6 +99,8 @@ void ModeBase::callOnActivate()
   _last_setpoint_update = node().get_clock()->now();
   onActivate();
 
+  updateControlModeFromSetpointTypes();
+
   if (_setpoint_update_rate_hz > FLT_EPSILON) {
     updateSetpoint(1.f / _setpoint_update_rate_hz);             // Immediately update
   }
@@ -266,6 +268,16 @@ void ModeBase::updateModeRequirementsFromSetpoints()
   }
 }
 
+void ModeBase::updateControlModeFromSetpointTypes()
+{
+  for (auto & setpoint_type : _setpoint_types) {
+    if (setpoint_type->active()) {
+      setControlModeFromSetpoint(*setpoint_type.get());
+      break; // Only one setpoint type can be active
+    }
+  }
+}
+
 void ModeBase::setSetpointUpdateRateFromSetpointTypes()
 {
   // Set update rate based on setpoint types
@@ -283,16 +295,15 @@ void ModeBase::setSetpointUpdateRateFromSetpointTypes()
 void ModeBase::activateSetpointType(SetpointBase & setpoint)
 {
   setpoint.setActive(true);
+  setControlModeFromSetpoint(setpoint);
+}
+
+void ModeBase::setControlModeFromSetpoint(SetpointBase & setpoint)
+{
   px4_msgs::msg::VehicleControlMode control_mode{};
   control_mode.source_id = static_cast<uint8_t>(id());
   setpoint.getConfiguration().fillControlMode(control_mode);
   control_mode.timestamp = node().get_clock()->now().nanoseconds() / 1000;
-  // Log the control mode message with the configuration
-  RCLCPP_DEBUG(
-    node().get_logger(), "Mode '%s': publishing config control mode with control alloc: %d, rates: %d",
-    _registration->name().c_str(),
-    (int)control_mode.flag_control_allocation_enabled,
-    (int)control_mode.flag_control_rates_enabled);
   _config_control_setpoints_pub->publish(control_mode);
 }
 

@@ -106,8 +106,7 @@ public:
    * Register the mode. Call this once on startup, unless there's an associated executor. This is a blocking method.
    * @return true on success
    */
-  bool doRegister();
-
+  virtual bool doRegister();
 
   /**
    * Report any custom mode requirements. This is called regularly, also while the mode is active.
@@ -162,6 +161,7 @@ public:
 protected:
   void setSkipMessageCompatibilityCheck() {_skip_message_compatibility_check = true;}
   void overrideRegistration(const std::shared_ptr<Registration> & registration);
+  void setControlModeFromSetpoint(SetpointBase &setpoint);
 
 private:
   void setRequirement(const RequirementFlags & requirement_flags) override;
@@ -182,6 +182,7 @@ private:
   void updateSetpointUpdateTimer();
 
   void updateModeRequirementsFromSetpoints();
+  void updateControlModeFromSetpointTypes();
   void setSetpointUpdateRateFromSetpointTypes();
   void activateSetpointType(SetpointBase & setpoint);
 

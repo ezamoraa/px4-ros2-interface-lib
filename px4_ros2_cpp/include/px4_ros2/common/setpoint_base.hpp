@@ -77,7 +77,6 @@ public:
   }
   virtual void setActive(bool active) {_active = active;}
   bool active() const {return _active;}
-
   virtual void onSetpointTypeAdded(Context * context) {}
 
 protected:
